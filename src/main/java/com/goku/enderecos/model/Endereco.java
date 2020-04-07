@@ -19,6 +19,14 @@ public class Endereco {
 	private String estado;
 	private String pais;
 
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	public Long getCep() {
 		return cep;
 	}

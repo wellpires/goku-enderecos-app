@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +20,7 @@ import com.goku.enderecos.dto.EnderecoCEPDetalheDTO;
 import com.goku.enderecos.dto.EnderecoDTO;
 import com.goku.enderecos.dto.EnderecosDTO;
 import com.goku.enderecos.dto.NovoEnderecoDTO;
+import com.goku.enderecos.response.EnderecoCEPDetalheResponse;
 import com.goku.enderecos.service.EnderecoService;
 
 @RestController
@@ -53,15 +55,17 @@ public class EnderecoController implements EnderecoResource {
 	}
 
 	@Override
-	public ResponseEntity<EnderecoCEPDetalheDTO> buscarPorCEP(Long cep) {
-		// TODO Auto-generated method stub
-		return null;
+	@GetMapping(path = "/{cep}")
+	public ResponseEntity<EnderecoCEPDetalheResponse> buscarPorCEP(@PathVariable("cep") Long cep) {
+		EnderecoCEPDetalheDTO enderecoCEPDetalhe = enderecoService.buscarPorCEP(cep);
+		return ResponseEntity.ok(new EnderecoCEPDetalheResponse(enderecoCEPDetalhe));
 	}
 
 	@Override
-	public ResponseEntity<Void> deletarEndereco(Long cep) {
-		// TODO Auto-generated method stub
-		return null;
+	@DeleteMapping(path = "/{cep}")
+	public ResponseEntity<Void> deletarEndereco(@PathVariable("cep") Long cep) {
+		enderecoService.deletarEndereco(cep);
+		return ResponseEntity.noContent().build();
 	}
 
 }
