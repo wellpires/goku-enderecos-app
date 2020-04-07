@@ -1,5 +1,8 @@
 package com.goku.enderecos.builder;
 
+import java.util.Objects;
+
+import com.goku.enderecos.dto.EditarEnderecoDTO;
 import com.goku.enderecos.model.Endereco;
 
 public class EnderecoBuilder {
@@ -11,6 +14,14 @@ public class EnderecoBuilder {
 	private String cidade;
 	private String estado;
 	private String pais;
+	private Endereco endereco;
+
+	public EnderecoBuilder(Endereco endereco) {
+		this.endereco = endereco;
+	}
+
+	public EnderecoBuilder() {
+	}
 
 	public EnderecoBuilder cep(Long cep) {
 		this.cep = cep;
@@ -56,6 +67,41 @@ public class EnderecoBuilder {
 		endereco.setCidade(cidade);
 		endereco.setEstado(estado);
 		endereco.setPais(pais);
+
+		return endereco;
+	}
+
+	public Endereco modify(EditarEnderecoDTO editarEnderecoDTO) {
+
+		Objects.requireNonNull(endereco);
+
+		if (Objects.nonNull(editarEnderecoDTO.getCep())) {
+			endereco.setCep(editarEnderecoDTO.getCep());
+		}
+
+		if (Objects.nonNull(editarEnderecoDTO.getLogradouro())) {
+			endereco.setLogradouro(editarEnderecoDTO.getLogradouro());
+		}
+
+		if (Objects.nonNull(editarEnderecoDTO.getNumero())) {
+			endereco.setNumero(editarEnderecoDTO.getNumero());
+		}
+
+		if (Objects.nonNull(editarEnderecoDTO.getBairro())) {
+			endereco.setBairro(editarEnderecoDTO.getBairro());
+		}
+
+		if (Objects.nonNull(editarEnderecoDTO.getCidade())) {
+			endereco.setCidade(editarEnderecoDTO.getCidade());
+		}
+
+		if (Objects.nonNull(editarEnderecoDTO.getEstado())) {
+			endereco.setEstado(editarEnderecoDTO.getEstado());
+		}
+
+		if (Objects.nonNull(editarEnderecoDTO.getPais())) {
+			endereco.setPais(editarEnderecoDTO.getPais());
+		}
 
 		return endereco;
 	}

@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,9 +43,13 @@ public class EnderecoController implements EnderecoResource {
 	}
 
 	@Override
-	public ResponseEntity<Void> editarEndereco(Long cep, EditarEnderecoDTO editarEnderecoDTO) {
-		// TODO Auto-generated method stub
-		return null;
+	@PutMapping(path = "/{cep}", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Void> editarEndereco(@PathVariable("cep") Long cep,
+			@RequestBody EditarEnderecoDTO editarEnderecoDTO) {
+
+		enderecoService.editarEndereco(cep, editarEnderecoDTO);
+
+		return ResponseEntity.noContent().build();
 	}
 
 	@Override

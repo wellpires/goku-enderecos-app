@@ -8,8 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.goku.enderecos.builder.EnderecoBuilder;
+import com.goku.enderecos.dto.EditarEnderecoDTO;
 import com.goku.enderecos.dto.EnderecoDTO;
 import com.goku.enderecos.dto.NovoEnderecoDTO;
+import com.goku.enderecos.exception.EnderecoNotFoundException;
 import com.goku.enderecos.function.Endereco2EnderecoDTOFunction;
 import com.goku.enderecos.model.Endereco;
 import com.goku.enderecos.repository.EnderecoRepository;
@@ -35,6 +37,16 @@ public class EnderecoServiceImpl implements EnderecoService {
 	public List<EnderecoDTO> listarEnderecos() {
 		return StreamSupport.stream(enderecoRepository.findAll().spliterator(), false)
 				.map(new Endereco2EnderecoDTOFunction()).collect(Collectors.toList());
+	}
+
+	@Override
+	public void editarEndereco(Long cep, EditarEnderecoDTO editarEnderecoDTO) {
+
+		Endereco endereco = enderecoRepository.findByCep(cep).orElseThrow(EnderecoNotFoundException::new);
+		Endereco enderecoChanged = new EnderecoBuilder(endereco).modify(editarEnderecoDTO);
+
+		enderecoRepository.save(enderecoChanged);
+
 	}
 
 }
