@@ -24,7 +24,7 @@ import com.goku.enderecos.response.EnderecoCEPDetalheResponse;
 import com.goku.enderecos.service.EnderecoService;
 
 @RestController
-@RequestMapping("endereco")
+@RequestMapping("/api/v1/endereco")
 public class EnderecoController implements EnderecoResource {
 
 	@Autowired

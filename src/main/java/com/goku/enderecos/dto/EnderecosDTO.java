@@ -10,6 +10,9 @@ public class EnderecosDTO {
 		this.enderecos = enderecos;
 	}
 
+	public EnderecosDTO() {
+	}
+
 	public List<EnderecoDTO> getEnderecos() {
 		return enderecos;
 	}

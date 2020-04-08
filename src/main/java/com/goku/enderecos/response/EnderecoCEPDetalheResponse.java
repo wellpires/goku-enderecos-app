@@ -12,6 +12,9 @@ public class EnderecoCEPDetalheResponse {
 		this.enderecoCEPDetalheDTO = enderecoCEPDetalheDTO;
 	}
 
+	public EnderecoCEPDetalheResponse() {
+	}
+
 	public EnderecoCEPDetalheDTO getEnderecoCEPDetalheDTO() {
 		return enderecoCEPDetalheDTO;
 	}
