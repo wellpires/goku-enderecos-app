@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -42,6 +42,7 @@ import com.goku.enderecos.dto.EditarEnderecoDTO;
 import com.goku.enderecos.dto.EnderecoCEPDetalheDTO;
 import com.goku.enderecos.dto.EnderecosDTO;
 import com.goku.enderecos.dto.NovoEnderecoDTO;
+import com.goku.enderecos.exception.EnderecoDuplicadoException;
 import com.goku.enderecos.exception.EnderecoNotFoundException;
 import com.goku.enderecos.response.EnderecoCEPDetalheResponse;
 import com.goku.enderecos.service.EnderecoService;
@@ -49,7 +50,7 @@ import com.goku.enderecos.service.EnderecoService;
 @SpringBootTest
 public class EnderecoControllerTest {
 
-	private static final String PATH_APP = "/api/v1/endereco";
+	private static final String PATH_APP = "/api/v1/enderecos";
 	private static final String POST_CREATE_ENDERECO = PATH_APP;
 	private static final String GET_LIST_ALL_ENDERECO = PATH_APP;
 	private static final String PUT_EDIT_ENDERECO = PATH_APP.concat("/{cep}");
@@ -76,7 +77,7 @@ public class EnderecoControllerTest {
 	}
 
 	@Test
-	void shouldCreateEndereco() throws JsonProcessingException, Exception {
+	void deveCriarEndereco() throws JsonProcessingException, Exception {
 
 		NovoEnderecoDTO novoEndereco = new NovoEnderecoDTOBuilder().cep(25666357l).logradouro("Rua teste").numero(666l)
 				.bairro("Bairro teste").cidade("Cidade teste").estado("Teste do norte").pais("Teste").build();
@@ -88,7 +89,155 @@ public class EnderecoControllerTest {
 	}
 
 	@Test
-	void shouldListAllEnderecos() throws Exception {
+	void naoDeveCriarEnderecoPoisOCampoCEPNaoFoiFornecido() throws Exception {
+
+		NovoEnderecoDTO novoEndereco = new NovoEnderecoDTOBuilder().logradouro("Rua teste").numero(666l)
+				.bairro("Bairro teste").cidade("Cidade teste").estado("Teste do norte").pais("Teste").build();
+		MvcResult response = mockMVC.perform(post(POST_CREATE_ENDERECO).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(novoEndereco))).andDo(print()).andReturn();
+
+		assertThat(HttpStatus.valueOf(response.getResponse().getStatus())).isEqualTo(HttpStatus.BAD_REQUEST);
+
+	}
+
+	@Test
+	void naoDeveCriarEnderecoPoisOCampoCEPFoiFornecidoComValorAbaixoDoMinimo() throws Exception {
+
+		NovoEnderecoDTO novoEndereco = new NovoEnderecoDTOBuilder().cep(1l).logradouro("Rua teste").numero(666l)
+				.bairro("Bairro teste").cidade("Cidade teste").estado("Teste do norte").pais("Teste").build();
+		MvcResult response = mockMVC.perform(post(POST_CREATE_ENDERECO).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(novoEndereco))).andDo(print()).andReturn();
+
+		assertThat(HttpStatus.valueOf(response.getResponse().getStatus())).isEqualTo(HttpStatus.BAD_REQUEST);
+
+	}
+
+	@Test
+	void naoDeveCriarEnderecoPoisOCampoCEPFoiFornecidoComValorAcimaDoMaximo() throws Exception {
+
+		NovoEnderecoDTO novoEndereco = new NovoEnderecoDTOBuilder().cep(99999999999999l).logradouro("Rua teste")
+				.numero(666l).bairro("Bairro teste").cidade("Cidade teste").estado("Teste do norte").pais("Teste")
+				.build();
+		MvcResult response = mockMVC.perform(post(POST_CREATE_ENDERECO).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(novoEndereco))).andDo(print()).andReturn();
+
+		assertThat(HttpStatus.valueOf(response.getResponse().getStatus())).isEqualTo(HttpStatus.BAD_REQUEST);
+
+	}
+
+	@Test
+	void naoDeveCriarEnderecoPoisOCampoLogradouroNaoFoiFornecido() throws Exception {
+
+		NovoEnderecoDTO novoEndereco = new NovoEnderecoDTOBuilder().cep(65888254l).numero(666l).bairro("Bairro teste")
+				.cidade("Cidade teste").estado("Teste do norte").pais("Teste").build();
+		MvcResult response = mockMVC.perform(post(POST_CREATE_ENDERECO).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(novoEndereco))).andDo(print()).andReturn();
+
+		assertThat(HttpStatus.valueOf(response.getResponse().getStatus())).isEqualTo(HttpStatus.BAD_REQUEST);
+
+	}
+
+	@Test
+	void naoDeveCriarEnderecoPoisOCampoNumeroNaoFoiFornecido() throws Exception {
+
+		NovoEnderecoDTO novoEndereco = new NovoEnderecoDTOBuilder().cep(65888254l).logradouro("Rua teste")
+				.bairro("Bairro teste").cidade("Cidade teste").estado("Teste do norte").pais("Teste").build();
+		MvcResult response = mockMVC.perform(post(POST_CREATE_ENDERECO).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(novoEndereco))).andDo(print()).andReturn();
+
+		assertThat(HttpStatus.valueOf(response.getResponse().getStatus())).isEqualTo(HttpStatus.BAD_REQUEST);
+
+	}
+
+	@Test
+	void naoDeveCriarEnderecoPoisOCampoNumeroFoiFornecidoComValorAbaixoDoMinimo() throws Exception {
+
+		NovoEnderecoDTO novoEndereco = new NovoEnderecoDTOBuilder().cep(65888254l).logradouro("Rua teste").numero(0l)
+				.bairro("Bairro teste").cidade("Cidade teste").estado("Teste do norte").pais("Teste").build();
+		MvcResult response = mockMVC.perform(post(POST_CREATE_ENDERECO).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(novoEndereco))).andDo(print()).andReturn();
+
+		assertThat(HttpStatus.valueOf(response.getResponse().getStatus())).isEqualTo(HttpStatus.BAD_REQUEST);
+
+	}
+
+	@Test
+	void naoDeveCriarEnderecoPoisOCampoNumeroFoiFornecidoComValorCimaDoMaximo() throws Exception {
+
+		NovoEnderecoDTO novoEndereco = new NovoEnderecoDTOBuilder().cep(65888254l).logradouro("Rua teste")
+				.numero(9999999999999999l).bairro("Bairro teste").cidade("Cidade teste").estado("Teste do norte")
+				.pais("Teste").build();
+		MvcResult response = mockMVC.perform(post(POST_CREATE_ENDERECO).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(novoEndereco))).andDo(print()).andReturn();
+
+		assertThat(HttpStatus.valueOf(response.getResponse().getStatus())).isEqualTo(HttpStatus.BAD_REQUEST);
+
+	}
+
+	@Test
+	void naoDeveCriarEnderecoPoisOCampoBairroNaoFoiFornecido() throws Exception {
+
+		NovoEnderecoDTO novoEndereco = new NovoEnderecoDTOBuilder().cep(65888254l).logradouro("Rua teste").numero(666l)
+				.cidade("Cidade teste").estado("Teste do norte").pais("Teste").build();
+		MvcResult response = mockMVC.perform(post(POST_CREATE_ENDERECO).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(novoEndereco))).andDo(print()).andReturn();
+
+		assertThat(HttpStatus.valueOf(response.getResponse().getStatus())).isEqualTo(HttpStatus.BAD_REQUEST);
+
+	}
+
+	@Test
+	void naoDeveCriarEnderecoPoisOCampoCidadeNaoFoiFornecido() throws Exception {
+
+		NovoEnderecoDTO novoEndereco = new NovoEnderecoDTOBuilder().cep(65888254l).logradouro("Rua teste").numero(666l)
+				.bairro("Bairro teste").estado("Teste do norte").pais("Teste").build();
+		MvcResult response = mockMVC.perform(post(POST_CREATE_ENDERECO).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(novoEndereco))).andDo(print()).andReturn();
+
+		assertThat(HttpStatus.valueOf(response.getResponse().getStatus())).isEqualTo(HttpStatus.BAD_REQUEST);
+
+	}
+
+	@Test
+	void naoDeveCriarEnderecoPoisOCampoEstadoNaoFoiFornecido() throws Exception {
+
+		NovoEnderecoDTO novoEndereco = new NovoEnderecoDTOBuilder().cep(65888254l).logradouro("Rua teste").numero(666l)
+				.bairro("Bairro teste").cidade("Cidade teste").pais("Teste").build();
+		MvcResult response = mockMVC.perform(post(POST_CREATE_ENDERECO).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(novoEndereco))).andDo(print()).andReturn();
+
+		assertThat(HttpStatus.valueOf(response.getResponse().getStatus())).isEqualTo(HttpStatus.BAD_REQUEST);
+
+	}
+
+	@Test
+	void naoDeveCriarEnderecoPoisOCampoPaisNaoFoiFornecido() throws Exception {
+
+		NovoEnderecoDTO novoEndereco = new NovoEnderecoDTOBuilder().cep(65888254l).logradouro("Rua teste").numero(666l)
+				.bairro("Bairro teste").cidade("Cidade teste").estado("Teste do norte").build();
+		MvcResult response = mockMVC.perform(post(POST_CREATE_ENDERECO).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(novoEndereco))).andDo(print()).andReturn();
+
+		assertThat(HttpStatus.valueOf(response.getResponse().getStatus())).isEqualTo(HttpStatus.BAD_REQUEST);
+
+	}
+
+	@Test
+	void naoDeveCriarEnderecoPoisJaExiste() throws JsonProcessingException, Exception {
+
+		doThrow(EnderecoDuplicadoException.class).when(enderecoService).criarEndereco(any(NovoEnderecoDTO.class));
+
+		NovoEnderecoDTO novoEndereco = new NovoEnderecoDTOBuilder().cep(25666357l).logradouro("Rua teste").numero(666l)
+				.bairro("Bairro teste").cidade("Cidade teste").estado("Teste do norte").pais("Teste").build();
+		MvcResult response = mockMVC.perform(post(POST_CREATE_ENDERECO).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(novoEndereco))).andDo(print()).andReturn();
+
+		assertThat(HttpStatus.valueOf(response.getResponse().getStatus())).isEqualTo(HttpStatus.CONFLICT);
+
+	}
+
+	@Test
+	void deveListarTodosEnderecos() throws Exception {
 
 		when(enderecoService.listarEnderecos()).thenReturn(new EnderecoDTOBuilder().quantidadeItens(10).buildList());
 
@@ -101,7 +250,7 @@ public class EnderecoControllerTest {
 	}
 
 	@Test
-	void shouldEditEndereco() throws Exception {
+	void deveEditarEndereco() throws Exception {
 
 		EditarEnderecoDTO editarEnderecoDTO = new EditarEnderecoDTOBuilder().bairro("Bairro teste")
 				.cidade("Cidade teste").build();
@@ -119,7 +268,7 @@ public class EnderecoControllerTest {
 	}
 
 	@Test
-	void shouldNotEditEnderecoBecauseEnderecoNotFound() throws JsonProcessingException, Exception {
+	void naoDeveEditarEnderecoPoisNaoFoiEncontrado() throws JsonProcessingException, Exception {
 
 		doThrow(EnderecoNotFoundException.class).when(enderecoService).editarEndereco(anyLong(),
 				any(EditarEnderecoDTO.class));
@@ -139,7 +288,57 @@ public class EnderecoControllerTest {
 	}
 
 	@Test
-	void shouldFindByCEP() throws Exception {
+	void naoDeveEditarEnderecoPoisAsInformacoesNaoForamPreenchidos() throws JsonProcessingException, Exception {
+
+		EditarEnderecoDTO editarEnderecoDTO = new EditarEnderecoDTOBuilder().build();
+
+		Map<String, Object> variable = new HashMap<String, Object>();
+		variable.put("cep", 12365478);
+		URI getEndereco = UriComponentsBuilder.fromPath(PUT_EDIT_ENDERECO).buildAndExpand(variable).toUri();
+
+		MvcResult response = mockMVC.perform(put(getEndereco).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(editarEnderecoDTO))).andDo(print()).andReturn();
+
+		assertThat(HttpStatus.valueOf(response.getResponse().getStatus())).isEqualTo(HttpStatus.BAD_REQUEST);
+
+	}
+
+	@Test
+	void naoDeveEditarPoisOCampoNumeroFoiFornecidoComValorAcimaDoMaximo() throws JsonProcessingException, Exception {
+
+		EditarEnderecoDTO editarEnderecoDTO = new EditarEnderecoDTOBuilder().numero(999999999999999999l).build();
+
+		Map<String, Object> variable = new HashMap<String, Object>();
+		variable.put("cep", 25666365);
+		URI editEndereco = UriComponentsBuilder.fromPath(PUT_EDIT_ENDERECO).buildAndExpand(variable).toUri();
+
+		MvcResult response = mockMVC.perform(put(editEndereco).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(editarEnderecoDTO))).andDo(print()).andReturn();
+
+		assertThat(HttpStatus.valueOf(response.getResponse().getStatus())).isEqualTo(HttpStatus.BAD_REQUEST);
+		verify(enderecoService, never()).editarEndereco(anyLong(), any(EditarEnderecoDTO.class));
+
+	}
+
+	@Test
+	void naoDeveEditarPoisOCampoNumeroFoiFornecidoComValorAbaixoDoMinimo() throws JsonProcessingException, Exception {
+
+		EditarEnderecoDTO editarEnderecoDTO = new EditarEnderecoDTOBuilder().numero(0l).build();
+
+		Map<String, Object> variable = new HashMap<String, Object>();
+		variable.put("cep", 25666365);
+		URI editEndereco = UriComponentsBuilder.fromPath(PUT_EDIT_ENDERECO).buildAndExpand(variable).toUri();
+
+		MvcResult response = mockMVC.perform(put(editEndereco).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(editarEnderecoDTO))).andDo(print()).andReturn();
+
+		assertThat(HttpStatus.valueOf(response.getResponse().getStatus())).isEqualTo(HttpStatus.BAD_REQUEST);
+		verify(enderecoService, never()).editarEndereco(anyLong(), any(EditarEnderecoDTO.class));
+
+	}
+
+	@Test
+	void deveBuscarPorCEP() throws Exception {
 
 		EnderecoCEPDetalheDTO enderecoCEPDetalheBuilt = new EnderecoCEPDetalheDTOBuilder().cep(25666357l)
 				.logradouro("Rua teste").numero(666l).bairro("Bairro teste").cidade("Cidade teste")
@@ -166,8 +365,8 @@ public class EnderecoControllerTest {
 
 	}
 
-	@Bean
-	public void shouldNotFindByCEPBecauseEnderecoWasNotFound() throws Exception {
+	@Test
+	public void naoDeveBuscarPorCEPPoisEnderecoNaoFoiEncontrado() throws Exception {
 
 		doThrow(EnderecoNotFoundException.class).when(enderecoService).buscarPorCEP(anyLong());
 
@@ -182,7 +381,7 @@ public class EnderecoControllerTest {
 	}
 
 	@Test
-	void shouldDeleteEndereco() throws Exception {
+	void deveDeletarEndereco() throws Exception {
 
 		Map<String, Object> variable = new HashMap<String, Object>();
 		variable.put("cep", 12365478);
@@ -196,7 +395,7 @@ public class EnderecoControllerTest {
 	}
 
 	@Test
-	void shouldNotDeleteEnderecoBecauseEnderecoWasNotFound() throws Exception {
+	void naoDeveDeletarEnderecoPoisEnderecoNaoFoiEncontrado() throws Exception {
 
 		doThrow(EnderecoNotFoundException.class).when(enderecoService).deletarEndereco(anyLong());
 
@@ -210,7 +409,7 @@ public class EnderecoControllerTest {
 	}
 
 	@Test
-	void shouldReturnInternalServerError() throws Exception {
+	void deveRetornarInternalServerError() throws Exception {
 
 		doThrow(RuntimeException.class).when(enderecoService).deletarEndereco(anyLong());
 

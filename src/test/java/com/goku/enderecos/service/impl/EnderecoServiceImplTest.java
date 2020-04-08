@@ -18,7 +18,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.goku.enderecos.builder.EditarEnderecoDTOBuilder;
 import com.goku.enderecos.builder.EnderecoBuilder;
@@ -27,6 +26,7 @@ import com.goku.enderecos.dto.EditarEnderecoDTO;
 import com.goku.enderecos.dto.EnderecoCEPDetalheDTO;
 import com.goku.enderecos.dto.EnderecoDTO;
 import com.goku.enderecos.dto.NovoEnderecoDTO;
+import com.goku.enderecos.exception.EnderecoDuplicadoException;
 import com.goku.enderecos.exception.EnderecoNotFoundException;
 import com.goku.enderecos.model.Endereco;
 import com.goku.enderecos.repository.EnderecoRepository;
@@ -43,6 +43,9 @@ public class EnderecoServiceImplTest {
 	@Test
 	public void shouldCriarEndereco() {
 
+		Endereco enderecoBuild = null;
+		when(enderecoRepository.findByCep(anyLong())).thenReturn(Optional.ofNullable(enderecoBuild));
+
 		NovoEnderecoDTO novoEndereco = new NovoEnderecoDTOBuilder().cep(25666357l).logradouro("Rua teste").numero(666l)
 				.bairro("Bairro teste").cidade("Cidade teste").estado("Teste do norte").pais("Teste").build();
 
@@ -58,6 +61,21 @@ public class EnderecoServiceImplTest {
 		assertEquals(argCaptor.getValue().getCidade(), novoEndereco.getCidade());
 		assertEquals(argCaptor.getValue().getEstado(), novoEndereco.getEstado());
 		assertEquals(argCaptor.getValue().getPais(), novoEndereco.getPais());
+
+	}
+
+	@Test
+	public void naoDeveCriarEnderecoPoisJaExiste() {
+
+		Endereco enderecoBuild = new EnderecoBuilder().cep(25666357l).logradouro("Rua teste").numero(666l)
+				.bairro("Bairro teste").cidade("Cidade teste").estado("Teste do norte").pais("Teste").build();
+		when(enderecoRepository.findByCep(anyLong())).thenReturn(Optional.ofNullable(enderecoBuild));
+
+		assertThrows(EnderecoDuplicadoException.class, () -> {
+			enderecoService.criarEndereco(new NovoEnderecoDTOBuilder().cep(254212l).build());
+		});
+
+		verify(enderecoRepository, never()).save(any(Endereco.class));
 
 	}
 
@@ -92,7 +110,6 @@ public class EnderecoServiceImplTest {
 	}
 
 	@Test
-	@ExceptionHandler(EnderecoNotFoundException.class)
 	public void shouldNotEditEnderecoBecauseEnderecoWasNotFound() {
 
 		Endereco enderecoBuild = null;

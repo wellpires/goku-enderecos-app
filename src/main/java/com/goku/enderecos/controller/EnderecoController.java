@@ -2,6 +2,8 @@ package com.goku.enderecos.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +26,7 @@ import com.goku.enderecos.response.EnderecoCEPDetalheResponse;
 import com.goku.enderecos.service.EnderecoService;
 
 @RestController
-@RequestMapping("/api/v1/endereco")
+@RequestMapping("/api/v1/enderecos")
 public class EnderecoController implements EnderecoResource {
 
 	@Autowired
@@ -32,7 +34,7 @@ public class EnderecoController implements EnderecoResource {
 
 	@Override
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Void> criarEndereco(@RequestBody NovoEnderecoDTO novoEndereco) {
+	public ResponseEntity<Void> criarEndereco(@Valid @RequestBody NovoEnderecoDTO novoEndereco) {
 		enderecoService.criarEndereco(novoEndereco);
 		return ResponseEntity.noContent().build();
 	}
@@ -47,7 +49,7 @@ public class EnderecoController implements EnderecoResource {
 	@Override
 	@PutMapping(path = "/{cep}", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Void> editarEndereco(@PathVariable("cep") Long cep,
-			@RequestBody EditarEnderecoDTO editarEnderecoDTO) {
+			@Valid @RequestBody EditarEnderecoDTO editarEnderecoDTO) {
 
 		enderecoService.editarEndereco(cep, editarEnderecoDTO);
 

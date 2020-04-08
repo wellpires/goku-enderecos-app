@@ -1,22 +1,22 @@
 package com.goku.enderecos.dto;
 
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
+
+import com.goku.enderecos.annotation.EditarEndereco;
+
+@EditarEndereco(message = "{form.obrigatorio.editar-endereco}")
 public class EditarEnderecoDTO {
 
-	private Long cep;
 	private String logradouro;
+
+	@DecimalMin(inclusive = true, value = "1", message = "{campo.invalido.numero_minimo}")
+	@DecimalMax(inclusive = true, value = "99999", message = "{campo.invalido.numero_maximo}")
 	private Long numero;
 	private String bairro;
 	private String cidade;
 	private String estado;
 	private String pais;
-
-	public Long getCep() {
-		return cep;
-	}
-
-	public void setCep(Long cep) {
-		this.cep = cep;
-	}
 
 	public String getLogradouro() {
 		return logradouro;

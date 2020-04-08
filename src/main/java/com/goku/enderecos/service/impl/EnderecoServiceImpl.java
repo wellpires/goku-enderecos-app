@@ -13,6 +13,7 @@ import com.goku.enderecos.dto.EditarEnderecoDTO;
 import com.goku.enderecos.dto.EnderecoCEPDetalheDTO;
 import com.goku.enderecos.dto.EnderecoDTO;
 import com.goku.enderecos.dto.NovoEnderecoDTO;
+import com.goku.enderecos.exception.EnderecoDuplicadoException;
 import com.goku.enderecos.exception.EnderecoNotFoundException;
 import com.goku.enderecos.function.Endereco2EnderecoCEPDetalheDTOFunction;
 import com.goku.enderecos.function.Endereco2EnderecoDTOFunction;
@@ -29,6 +30,11 @@ public class EnderecoServiceImpl implements EnderecoService {
 	@Override
 	@CacheEvict(cacheNames = { "enderecos-cache", "enderecos-cep-cache" }, allEntries = true)
 	public void criarEndereco(NovoEnderecoDTO novoEnderecoDTO) {
+		
+		if(enderecoRepository.findByCep(novoEnderecoDTO.getCep()).isPresent()) {
+			throw new EnderecoDuplicadoException();
+		}
+		
 		Endereco endereco = new EnderecoBuilder().cep(novoEnderecoDTO.getCep())
 				.logradouro(novoEnderecoDTO.getLogradouro()).numero(novoEnderecoDTO.getNumero())
 				.bairro(novoEnderecoDTO.getBairro()).cidade(novoEnderecoDTO.getCidade())

@@ -90,10 +90,6 @@ public class EnderecoBuilder {
 
 		Objects.requireNonNull(endereco);
 
-		if (Objects.nonNull(editarEnderecoDTO.getCep())) {
-			endereco.setCep(editarEnderecoDTO.getCep());
-		}
-
 		if (Objects.nonNull(editarEnderecoDTO.getLogradouro())) {
 			endereco.setLogradouro(editarEnderecoDTO.getLogradouro());
 		}
