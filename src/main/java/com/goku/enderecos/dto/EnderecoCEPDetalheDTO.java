@@ -1,6 +1,10 @@
 package com.goku.enderecos.dto;
 
-public class EnderecoCEPDetalheDTO {
+import java.io.Serializable;
+
+public class EnderecoCEPDetalheDTO implements Serializable {
+
+	private static final long serialVersionUID = 8636737670521256957L;
 
 	private Long cep;
 	private String logradouro;

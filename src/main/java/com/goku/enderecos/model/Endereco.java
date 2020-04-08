@@ -1,11 +1,15 @@
 package com.goku.enderecos.model;
 
+import java.io.Serializable;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
 
 @RedisHash("endereco")
-public class Endereco {
+public class Endereco implements Serializable {
+
+	private static final long serialVersionUID = 8148169296054832982L;
 
 	@Id
 	private Long id;

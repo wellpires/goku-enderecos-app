@@ -1,5 +1,7 @@
 package com.goku.enderecos.controller.advice;
 
+import java.io.NotSerializableException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,14 @@ public class EnderecoControllerAdvice {
 
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 				.body(new ErrorResponseBuilder().message(exception.getMessage()).build());
+	}
+
+	@ExceptionHandler(NotSerializableException.class)
+	public ResponseEntity<ErrorResponse> handleTeste(NotSerializableException notSerializableException) {
+		log.error(notSerializableException.getMessage(), notSerializableException);
+
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+				.body(new ErrorResponseBuilder().message(notSerializableException.getMessage()).build());
 	}
 
 	@ExceptionHandler(EnderecoNotFoundException.class)

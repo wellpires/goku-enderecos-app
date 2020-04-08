@@ -2,9 +2,10 @@ package com.goku.enderecos.service.impl;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 
 import com.goku.enderecos.builder.EnderecoBuilder;
@@ -26,6 +27,7 @@ public class EnderecoServiceImpl implements EnderecoService {
 	private EnderecoRepository enderecoRepository;
 
 	@Override
+	@CacheEvict(cacheNames = { "enderecos-cache", "enderecos-cep-cache" }, allEntries = true)
 	public void criarEndereco(NovoEnderecoDTO novoEnderecoDTO) {
 		Endereco endereco = new EnderecoBuilder().cep(novoEnderecoDTO.getCep())
 				.logradouro(novoEnderecoDTO.getLogradouro()).numero(novoEnderecoDTO.getNumero())
@@ -37,11 +39,13 @@ public class EnderecoServiceImpl implements EnderecoService {
 
 	@Override
 	public List<EnderecoDTO> listarEnderecos() {
-		return StreamSupport.stream(enderecoRepository.findAll().spliterator(), false)
-				.map(new Endereco2EnderecoDTOFunction()).collect(Collectors.toList());
+		return enderecoRepository.findAll().stream().map(new Endereco2EnderecoDTOFunction())
+				.collect(Collectors.toList());
 	}
 
 	@Override
+	@CachePut(cacheNames = { "enderecos-cep-cache" })
+	@CacheEvict(value = "enderecos-cache", allEntries = true)
 	public void editarEndereco(Long cep, EditarEnderecoDTO editarEnderecoDTO) {
 
 		Endereco endereco = enderecoRepository.findByCep(cep).orElseThrow(EnderecoNotFoundException::new);
@@ -58,6 +62,8 @@ public class EnderecoServiceImpl implements EnderecoService {
 	}
 
 	@Override
+	@CachePut(cacheNames = { "enderecos-cep-cache" })
+	@CacheEvict(value = "enderecos-cache", allEntries = true)
 	public void deletarEndereco(Long cep) {
 		Endereco endereco = enderecoRepository.findByCep(cep).orElseThrow(EnderecoNotFoundException::new);
 		enderecoRepository.deleteById(endereco.getId());
