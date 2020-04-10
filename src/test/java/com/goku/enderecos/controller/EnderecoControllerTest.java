@@ -40,11 +40,11 @@ import com.goku.enderecos.builder.NovoEnderecoDTOBuilder;
 import com.goku.enderecos.controller.advice.EnderecoControllerAdvice;
 import com.goku.enderecos.dto.EditarEnderecoDTO;
 import com.goku.enderecos.dto.EnderecoCEPDetalheDTO;
-import com.goku.enderecos.dto.EnderecosDTO;
 import com.goku.enderecos.dto.NovoEnderecoDTO;
 import com.goku.enderecos.exception.EnderecoDuplicadoException;
 import com.goku.enderecos.exception.EnderecoNotFoundException;
 import com.goku.enderecos.response.EnderecoCEPDetalheResponse;
+import com.goku.enderecos.response.EnderecosResponse;
 import com.goku.enderecos.service.EnderecoService;
 
 @SpringBootTest
@@ -244,7 +244,7 @@ public class EnderecoControllerTest {
 		MvcResult response = mockMVC.perform(get(GET_LIST_ALL_ENDERECO)).andDo(print()).andReturn();
 
 		assertThat(HttpStatus.valueOf(response.getResponse().getStatus())).isEqualTo(HttpStatus.OK);
-		assertThat(mapper.readValue(response.getResponse().getContentAsString(), EnderecosDTO.class).getEnderecos())
+		assertThat(mapper.readValue(response.getResponse().getContentAsString(), EnderecosResponse.class).getEnderecos())
 				.hasSize(10);
 
 	}

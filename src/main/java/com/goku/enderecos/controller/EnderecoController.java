@@ -20,9 +20,9 @@ import com.goku.enderecos.controller.resource.EnderecoResource;
 import com.goku.enderecos.dto.EditarEnderecoDTO;
 import com.goku.enderecos.dto.EnderecoCEPDetalheDTO;
 import com.goku.enderecos.dto.EnderecoDTO;
-import com.goku.enderecos.dto.EnderecosDTO;
 import com.goku.enderecos.dto.NovoEnderecoDTO;
 import com.goku.enderecos.response.EnderecoCEPDetalheResponse;
+import com.goku.enderecos.response.EnderecosResponse;
 import com.goku.enderecos.service.EnderecoService;
 
 @RestController
@@ -41,9 +41,9 @@ public class EnderecoController implements EnderecoResource {
 
 	@Override
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<EnderecosDTO> listarEnderecos() {
+	public ResponseEntity<EnderecosResponse> listarEnderecos() {
 		List<EnderecoDTO> enderecos = enderecoService.listarEnderecos();
-		return ResponseEntity.ok(new EnderecosDTO(enderecos));
+		return ResponseEntity.ok(new EnderecosResponse(enderecos));
 	}
 
 	@Override

@@ -18,7 +18,7 @@ public class CacheConfiguration {
 	public CacheManager cacheManager() {
 		SimpleCacheManager cacheManager = new SimpleCacheManager();
 		Cache todosEnderecosCache = new ConcurrentMapCache("enderecos-cache");
-		ConcurrentMapCache enderecoCepCache = new ConcurrentMapCache("enderecos-cep-cache");
+		Cache enderecoCepCache = new ConcurrentMapCache("enderecos-cep-cache");
 		cacheManager.setCaches(Arrays.asList(todosEnderecosCache, enderecoCepCache));
 		return cacheManager;
 	}

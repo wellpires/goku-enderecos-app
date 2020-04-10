@@ -1,10 +1,9 @@
 package com.goku.enderecos.dto;
 
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.NotEmpty;
-
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 public class NovoEnderecoDTO {
 
@@ -13,24 +12,24 @@ public class NovoEnderecoDTO {
 	@DecimalMax(inclusive = true, value = "99999999", message = "{campo.invalido.cep_maximo}")
 	private Long cep;
 
-	@NotEmpty(message = "{campo.obrigatorio.logradouro}")
+	@NotBlank(message = "{campo.obrigatorio.logradouro}")
 	private String logradouro;
-	
+
 	@NotNull(message = "{campo.obrigatorio.numero}")
 	@DecimalMin(inclusive = true, value = "1", message = "{campo.invalido.numero_minimo}")
 	@DecimalMax(inclusive = true, value = "99999", message = "{campo.invalido.numero_maximo}")
 	private Long numero;
-	
-	@NotEmpty(message = "{campo.obrigatorio.bairro}")
+
+	@NotBlank(message = "{campo.obrigatorio.bairro}")
 	private String bairro;
-	
-	@NotEmpty(message = "{campo.obrigatorio.cidade}")
+
+	@NotBlank(message = "{campo.obrigatorio.cidade}")
 	private String cidade;
-	
-	@NotEmpty(message = "{campo.obrigatorio.estado}")
+
+	@NotBlank(message = "{campo.obrigatorio.estado}")
 	private String estado;
-	
-	@NotEmpty(message = "{campo.obrigatorio.pais}")
+
+	@NotBlank(message = "{campo.obrigatorio.pais}")
 	private String pais;
 
 	public Long getCep() {
